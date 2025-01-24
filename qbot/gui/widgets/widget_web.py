@@ -19,3 +19,12 @@ class WebPanel(wx.Panel):
             html_cont = f.read()
             self.browser.SetPage(html_cont, "")
             self.browser.Show()
+
+
+if __name__ == "__main__":
+    app = wx.App()
+    frame = wx.Frame(None, title="WebPanel")
+    web = WebPanel(frame)
+    web.show_url("https://danjuanapp.com/djmodule/value-center")
+    frame.Show()
+    app.MainLoop()

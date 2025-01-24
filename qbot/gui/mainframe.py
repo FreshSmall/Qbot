@@ -35,16 +35,17 @@ class MainFrame(wx.Frame):
         self.init_statusbar()
         self.init_menu_bar()
         self.init_main_tabs()
+        self.tool_dic = {1:'蛋卷估值',2:'集思录',3:'后台监控'}
 
-    def init_menu_bar(self):
+    def init_menu_bar_bak(self):
         # 创建窗口面板
         menuBar = wx.MenuBar(style=wx.MB_DOCKABLE)
         self.SetMenuBar(menuBar)
-        self.SetMinSize((1618, 902))
+        self.SetMinSize((1500, 800))
 
         setting = wx.Menu()
         menuBar.Append(setting, "&设置")
-        params_conf = wx.MenuItem(setting, 0, "&参数配置")
+        params_conf = wx.MenuItem(setting, 1, "&参数配置")
         setting.Append(params_conf)
         self.Bind(wx.EVT_MENU, self.on_params_conf, params_conf)
 
@@ -64,17 +65,49 @@ class MainFrame(wx.Frame):
 
         # Now a help menu for the about item
         helpMenu = wx.Menu()
-        aboutItem = helpMenu.Append(wx.ID_ABOUT, "关于")
+        aboutItem = helpMenu.Append(wx.ID_ANY, "关于")
+        menuBar.Append(helpMenu, "&帮助")
+        self.Bind(wx.EVT_MENU, self.OnAbout, aboutItem)
+
+    def init_menu_bar(self):
+        # 创建窗口面板
+        menuBar = wx.MenuBar(style=wx.MB_DOCKABLE)
+        self.SetMenuBar(menuBar)
+        self.SetMinSize((1500, 800))
+
+        setting = wx.Menu()
+        menuBar.Append(setting, "&设置")
+        settingItem= setting.Append(wx.ID_ANY, "&参数配置")
+        self.Bind(wx.EVT_MENU, self.on_params_conf, settingItem)
+
+        tools = wx.Menu()
+        menuBar.Append(tools, "&工具")
+        toolsItem = tools.Append(1, "&蛋卷估值")
+        self.Bind(wx.EVT_MENU, self.on_menu, toolsItem)
+        tools.AppendSeparator()
+        jisiluItem = tools.Append(2, "&集思录")
+        self.Bind(wx.EVT_MENU, self.on_menu, jisiluItem)
+        monitoringItem = tools.Append(3, "&后台监控")
+        self.Bind(wx.EVT_MENU, self.start_monitoring, monitoringItem)
+
+        # Now a help menu for the about item
+        helpMenu = wx.Menu()
+        aboutItem = helpMenu.Append(wx.ID_ANY, "关于")
         menuBar.Append(helpMenu, "&帮助")
         self.Bind(wx.EVT_MENU, self.OnAbout, aboutItem)
 
     def on_menu(self, event):
-        web = WebPanel(self.tabs)
+        frame = wx.Frame(self, title=self.tool_dic[event.Id])
+        web = WebPanel(frame)
         if event.Id == 1:
             web.show_url("https://danjuanapp.com/djmodule/value-center")
         if event.Id == 2:
             web.show_url("https://www.jisilu.cn/")
-
+        frame.Size = (1000, 800)
+        frame.Show()
+        frame.Center()
+        
+        
     def on_params_conf(self, event):
         dialog = ParamsConfigDialog(self)
         dialog.Show()
@@ -120,7 +153,7 @@ class MainFrame(wx.Frame):
 
         # 主窗口notebook
         self.tabs = wx.Notebook(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0)
-        self.boxH.Add(self.tabs, 1, wx.ALL | wx.EXPAND)  # todo propotion==1为何
+        self.boxH.Add(self.tabs, wx.ALL | wx.EXPAND)  # todo propotion==1为何
 
         self.tabs.AddPage(ZhikuPanel(self.tabs), "Qbot 投研智库", True)
 
